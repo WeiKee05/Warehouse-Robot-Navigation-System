@@ -25,18 +25,18 @@ The system handles order management, robot assignment, navigation, item search, 
 
 | Task | Module | Data Structure | Member |
 |------|--------|----------------|--------|
-| 1 | Order Management | Queue | TBD |
-| 2 | Robot Assignment | Circular Queue | TBD |
-| 3 | Robot Navigation & Path Tracking | Stack | TBD |
-| 4 | Item Search & Management *(Optional)* | BST / Tree | TBD |
-| 5 | Warehouse Layout & Navigation *(Optional)* | Tree | TBD |
+| 1 | Order Management | Queue | EV |
+| 2 | Robot Assignment | Circular Queue | BAN |
+| 3 | Robot Navigation & Path Tracking | Stack | EEE |
+| 4 | Item Search & Management *(Optional)* | BST / Tree | WT |
+| 5 | Warehouse Layout & Navigation *(Optional)* | Tree | WK |
 
 ---
 
 ## Module Details
 
 ### Task 1 — Order Management (`OrderManagement/`)
-
+EV
 - Accept and record incoming customer orders
 - Process orders sequentially — **first in, first out (FIFO)**
 - Remove orders once assigned to a robot
@@ -49,7 +49,7 @@ The system handles order management, robot assignment, navigation, item search, 
 ---
 
 ### Task 2 — Robot Assignment (`RobotAssignment/`)
-
+BAN
 - Maintain robot list with status: `available` / `busy` / `maintenance`
 - Assign tasks in **continuous rotation** — no cycle restart
 - Skip unavailable or under-maintenance robots
@@ -61,7 +61,7 @@ The system handles order management, robot assignment, navigation, item search, 
 ---
 
 ### Task 3 — Robot Navigation & Path Tracking (`RobotNavigation/`)
-
+EEE
 - Record each movement step: `forward`, `left`, `right`, `backward`
 - Store the full path from start to destination
 - **Reverse path** step-by-step for the return journey (pop stack)
@@ -74,7 +74,7 @@ The system handles order management, robot assignment, navigation, item search, 
 ---
 
 ### Task 4 — Item Search & Management (`ItemSearch/`) *(Optional)*
-
+WT
 - Store item details: ID, name, warehouse location
 - Insert, search (by ID or name), update, delete records
 - Display items in sorted order via **in-order traversal**
@@ -85,7 +85,7 @@ The system handles order management, robot assignment, navigation, item search, 
 ---
 
 ### Task 5 — Warehouse Layout & Navigation (`WarehouseLayout/`) *(Optional)*
-
+WK
 - Model warehouse hierarchy: `Warehouse → Zones → Aisles → Shelves`
 - Define connections between locations
 - Generate routes from one point to another
