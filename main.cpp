@@ -40,8 +40,11 @@ int main() {
     // ----------------------------------------------------------
     // STEP 3: Receive and queue incoming orders (Task 1)
     // ----------------------------------------------------------
-    // TODO: Create OrderQueue, enqueue several sample orders
-    // TODO: Display pending orders with displayPending()
+    OrderQueue orderQueue;
+    orderQueue.enqueue(1001, "Motor Part A");
+    orderQueue.enqueue(1002, "Sensor Unit B");
+    orderQueue.enqueue(1003, "Battery Pack C");
+    orderQueue.displayPending();
 
     // ----------------------------------------------------------
     // STEP 4: Register robots and assign the first order (Task 2)
@@ -81,7 +84,12 @@ int main() {
     // ----------------------------------------------------------
     // STEP 9: Mark order as completed (Task 1)
     // ----------------------------------------------------------
-    // TODO: Display completed order history with displayCompleted()
+    Order* processedOrder = orderQueue.dequeue();
+    if (processedOrder != nullptr) {
+        orderQueue.markCompleted(processedOrder);
+    }
+    orderQueue.displayCompleted();
+    orderQueue.displayPending();
 
     cout << "\n========================================" << endl;
     cout << "  System simulation complete.           " << endl;
