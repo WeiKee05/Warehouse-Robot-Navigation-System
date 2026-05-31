@@ -1,7 +1,7 @@
 /*
  * Task 5 — Warehouse Layout & Navigation Module (Optional)
- * Member: [Your Name]
- * Student ID: [Your ID]
+ * Member: Lee Wei Kee
+ * Student ID: TP076249
  * Data Structure: Tree (self-implemented, hierarchical multi-child nodes)
  *
  * Hierarchy: Warehouse --> Zones --> Aisles --> Shelves
@@ -27,6 +27,7 @@
 #include <string>
 
 #define INITIAL_CAPACITY 4  // initial children array size; doubles when full
+#define MAX_PATH_LEN 20
 
 using namespace std;
 
@@ -51,11 +52,13 @@ private:
     LocationNode* root;
 
     void displayTree(LocationNode* node, int depth) const;
-    LocationNode* findNode(LocationNode* node, std::string name) const;
+    LocationNode* findNode(LocationNode* node, const string& name) const;
     void destroyTree(LocationNode* node);
     void traversePreOrder(LocationNode* node) const;
     // Trace parent links from target to root, reverse into pathArr
     int buildPath(LocationNode* target, std::string* pathArr, int maxLen) const;
+    LocationNode* findLCA(LocationNode* a, LocationNode* b) const;
+    int depthOf(LocationNode* node) const;
 
 public:
     WarehouseTree();
@@ -65,17 +68,19 @@ public:
     void buildLayout();
 
     // Find a location node by name (nullptr if not found)
-    LocationNode* findLocation(std::string name) const;
+    LocationNode* findLocation(const string& name) const;
 
     // Fill pathArr with names from root to targetName
     // Returns path length (0 if not found)
-    int getPathToLocation(std::string targetName, std::string* pathArr, int maxLen) const;
+    int getPathToLocation(const string& targetName, string* pathArr, int maxLen) const;
 
     // Print indented hierarchy
     void displayLayout() const;
 
     // Pre-order traversal of entire tree
     void displayPreOrder() const;
+    int getPathBetweenLocations(const string& fromName, const string& toName, string* pathArr, int maxLen) const;
+    void displayRoute(const string& fromName, const string& toName) const;
 
     // TODO: Add any additional helper methods
 };

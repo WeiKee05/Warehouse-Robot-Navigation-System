@@ -31,6 +31,7 @@ int main() {
     WarehouseTree warehouse;
     warehouse.buildLayout();
     warehouse.displayLayout();
+    warehouse.displayPreOrder();
 
     // ----------------------------------------------------------
     // STEP 2: Load item database (Task 4)
@@ -82,22 +83,26 @@ int main() {
     // ----------------------------------------------------------
     // STEP 6: Generate route to item via warehouse layout (Task 5)
     // ----------------------------------------------------------
-    string path[10];
-    int pathLen = warehouse.getPathToLocation("Shelf-3", path, 10);
+    string path[20];
+    int pathLen = warehouse.getPathToLocation("Shelf-3", path, 20);
     cout << "\n[Route] Path to Shelf-3: ";
     for (int i = 0; i < pathLen; i++) {
         cout << path[i];
         if (i < pathLen - 1) cout << " -> ";
     }
     cout << endl;
+    warehouse.displayRoute("Shelf-6", "Shelf-3");
 
     // ----------------------------------------------------------
     // STEP 7: Navigate robot — push each step onto stack (Task 3)
     // ----------------------------------------------------------
     PathStack robotPath;
-    robotPath.push("forward", "Zone-A");
-    robotPath.push("left",    "Aisle-2");
-    robotPath.push("forward", "Shelf-3");
+    string directionMap[] = { "forward", "left", "forward", "forward" };
+
+    for (int i = 1; i < pathLen; i++) {
+        string direction = (i - 1 < 4) ? directionMap[i - 1] : "forward";
+        robotPath.push(direction, path[i]);
+    }
     robotPath.display();
     robotPath.displayForwardPath();
 

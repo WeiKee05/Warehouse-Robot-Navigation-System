@@ -66,6 +66,86 @@ void WarehouseTree::destroyTree(LocationNode* node) {
     delete node;
 }
 
+int WarehouseTree::depthOf(LocationNode* node) const {
+    int depth = 0;
+    while (node->parent != nullptr) {
+        node = node->parent;
+        depth++;
+    }
+    return depth;
+}
+
+LocationNode* WarehouseTree::findLCA(LocationNode* a, LocationNode* b) const {
+    if (a == nullptr || b == nullptr) return nullptr;
+
+    int da = depthOf(a);
+    int db = depthOf(b);
+
+    while (da > db) { a = a->parent; da--; }
+    while (db > da) { b = b->parent; db--; }
+
+    while (a != b) {
+        a = a->parent;
+        b = b->parent;
+    }
+    return a;
+}
+
+int WarehouseTree::getPathBetweenLocations(const string& fromName,
+                                            const string& toName,
+                                            string* pathArr, int maxLen) const {
+    LocationNode* fromNode = findLocation(fromName);
+    LocationNode* toNode   = findLocation(toName);
+
+    if (fromNode == nullptr) {
+        cout << "[WarehouseLayout] Source location not found: " << fromName << endl;
+        return 0;
+    }
+    if (toNode == nullptr) {
+        cout << "[WarehouseLayout] Destination location not found: " << toName << endl;
+        return 0;
+    }
+
+    LocationNode* lca = findLCA(fromNode, toNode);
+
+    string fromPath[MAX_PATH_LEN];
+    string toPath[MAX_PATH_LEN];
+    int fromLen = buildPath(fromNode, fromPath, MAX_PATH_LEN);
+    int toLen   = buildPath(toNode,   toPath,   MAX_PATH_LEN);
+
+    int lcaIdxFrom = -1, lcaIdxTo = -1;
+    for (int i = 0; i < fromLen; i++) {
+        if (fromPath[i] == lca->name) { lcaIdxFrom = i; break; }
+    }
+    for (int i = 0; i < toLen; i++) {
+        if (toPath[i] == lca->name) { lcaIdxTo = i; break; }
+    }
+
+    int idx = 0;
+    for (int i = fromLen - 1; i >= lcaIdxFrom && idx < maxLen; i--) {
+        pathArr[idx++] = fromPath[i];
+    }
+    for (int i = lcaIdxTo + 1; i < toLen && idx < maxLen; i++) {
+        pathArr[idx++] = toPath[i];
+    }
+    return idx;
+}
+
+void WarehouseTree::displayRoute(const string& fromName, const string& toName) const {
+    string path[MAX_PATH_LEN];
+    int len = getPathBetweenLocations(fromName, toName, path, MAX_PATH_LEN);
+
+    if (len == 0) return;
+
+    cout << "\n=== Route: " << fromName << " --> " << toName << " ===" << endl;
+    for (int i = 0; i < len; i++) {
+        cout << "  Step " << (i + 1) << ": " << path[i];
+        if (i < len - 1) cout << " -> " << path[i + 1];
+        cout << endl;
+    }
+    cout << "Total steps: " << (len - 1) << endl;
+}
+
 // ---------------------------------------------------------------
 // buildLayout — construct the warehouse hierarchy
 // ---------------------------------------------------------------
@@ -98,12 +178,13 @@ void WarehouseTree::buildLayout() {
     LocationNode* aisle4 = new LocationNode("Aisle-4", "aisle");
     zoneB->addChild(aisle4);
     aisle4->addChild(new LocationNode("Shelf-7", "shelf"));
+    aisle4->addChild(new LocationNode("Shelf-8", "shelf"));
 }
 
 // ---------------------------------------------------------------
 // findNode — pre-order recursive search by name
 // ---------------------------------------------------------------
-LocationNode* WarehouseTree::findNode(LocationNode* node, std::string name) const {
+LocationNode* WarehouseTree::findNode(LocationNode* node, const string& name) const {
     if (node == nullptr) return nullptr;
     if (node->name == name) return node;
     for (int i = 0; i < node->childCount; i++) {
@@ -113,7 +194,7 @@ LocationNode* WarehouseTree::findNode(LocationNode* node, std::string name) cons
     return nullptr;
 }
 
-LocationNode* WarehouseTree::findLocation(std::string name) const {
+LocationNode* WarehouseTree::findLocation(const string& name) const {
     return findNode(root, name);
 }
 
@@ -121,22 +202,23 @@ LocationNode* WarehouseTree::findLocation(std::string name) const {
 // buildPath — trace parent links from target to root, then reverse
 // ---------------------------------------------------------------
 int WarehouseTree::buildPath(LocationNode* target, std::string* pathArr, int maxLen) const {
-    // Collect from target up to root into a temporary array
-    std::string temp[maxLen];
+    string temp[MAX_PATH_LEN];
     int len = 0;
     LocationNode* current = target;
-    while (current != nullptr && len < maxLen) {
+    while (current != nullptr && len < MAX_PATH_LEN) {
         temp[len++] = current->name;
         current = current->parent;
     }
     // Reverse into pathArr so order is root -> target
-    for (int i = 0; i < len; i++) {
+    // copyLen respects caller's maxLen to avoid writing past their array
+    int copyLen = (len < maxLen) ? len : maxLen;
+    for (int i = 0; i < copyLen; i++) {
         pathArr[i] = temp[len - 1 - i];
     }
-    return len;
+    return copyLen;
 }
 
-int WarehouseTree::getPathToLocation(std::string targetName, std::string* pathArr, int maxLen) const {
+int WarehouseTree::getPathToLocation(const string& targetName, string* pathArr, int maxLen) const {
     LocationNode* target = findLocation(targetName);
     if (target == nullptr) {
         cout << "Location not found: " << targetName << endl;
