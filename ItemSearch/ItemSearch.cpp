@@ -1,7 +1,7 @@
 /*
  * Task 4 — Item Search & Management Module Implementation
- * Member: [Your Name]
- * Student ID: [Your ID]
+ * Member: Ng Wan Teng
+ * Student ID: TP076289
  * Data Structure: Binary Search Tree (BST)
  */
 
@@ -9,106 +9,199 @@
 
 using namespace std;
 
-ItemNode::ItemNode(int id, std::string name, std::string loc) {
-    // TODO: Initialize itemId, itemName, location, left = nullptr, right = nullptr
+ItemNode::ItemNode(int id, string name, string loc) {
+    itemId = id;
+    itemName = name;
+    location = loc;
+    left = nullptr;
+    right = nullptr;
 }
 
 ItemBST::ItemBST() {
-    // TODO: root = nullptr
+    root = nullptr;
 }
 
 ItemBST::~ItemBST() {
-    // TODO: destroyTree(root)
+    destroyTree(root);
+    root = nullptr;
 }
 
 void ItemBST::destroyTree(ItemNode* node) {
-    // TODO: Post-order delete: left subtree, right subtree, then node
+    if (node == nullptr) return;
+
+    destroyTree(node->left);
+    destroyTree(node->right);
+    delete node;
 }
 
-// ---------------------------------------------------------------
-// insertHelper — recursive BST insert
-// ---------------------------------------------------------------
-ItemNode* ItemBST::insertHelper(ItemNode* node, int id, std::string name, std::string loc) {
-    // TODO: If node == nullptr, return new ItemNode(id, name, loc)
-    // TODO: If id < node->itemId: node->left  = insertHelper(node->left,  id, name, loc)
-    // TODO: If id > node->itemId: node->right = insertHelper(node->right, id, name, loc)
-    // TODO: If id == node->itemId: overwrite name and location (duplicate handling)
-    // TODO: Return node
-    return nullptr;
+ItemNode* ItemBST::insertHelper(ItemNode* node, int id, string name, string loc) {
+    if (node == nullptr) {
+        return new ItemNode(id, name, loc);
+    }
+
+    if (id < node->itemId) {
+        node->left = insertHelper(node->left, id, name, loc);
+    } 
+    else if (id > node->itemId) {
+        node->right = insertHelper(node->right, id, name, loc);
+    } 
+    else {
+        node->itemName = name;
+        node->location = loc;
+    }
+
+    return node;
 }
 
-void ItemBST::insert(int itemId, std::string itemName, std::string location) {
-    // TODO: root = insertHelper(root, itemId, itemName, location)
-    // TODO: Print confirmation
+void ItemBST::insert(int itemId, string itemName, string location) {
+    bool existingItem = (searchById(itemId) != nullptr);
+
+    root = insertHelper(root, itemId, itemName, location);
+
+    if (existingItem) {
+        cout << "[ItemSearch] Existing item updated: "
+             << itemId << " | " << itemName << " | " << location << endl;
+    } 
+    else {
+        cout << "[ItemSearch] Item inserted: "
+             << itemId << " | " << itemName << " | " << location << endl;
+    }
 }
 
-// ---------------------------------------------------------------
-// searchHelper — recursive BST search by ID
-// ---------------------------------------------------------------
 ItemNode* ItemBST::searchHelper(ItemNode* node, int id) const {
-    // TODO: If nullptr or match, return node
-    // TODO: Recurse left if id < node->itemId, else right
-    return nullptr;
+    if (node == nullptr || node->itemId == id) {
+        return node;
+    }
+
+    if (id < node->itemId) {
+        return searchHelper(node->left, id);
+    }
+
+    return searchHelper(node->right, id);
 }
 
 ItemNode* ItemBST::searchById(int itemId) const {
-    // TODO: return searchHelper(root, itemId)
-    return nullptr;
+    return searchHelper(root, itemId);
 }
 
-// ---------------------------------------------------------------
-// searchByNameHelper — in-order traversal, match by name
-// ---------------------------------------------------------------
-ItemNode* ItemBST::searchByNameHelper(ItemNode* node, std::string name) const {
-    // TODO: If nullptr, return nullptr
-    // TODO: Check left subtree first
-    // TODO: If node->itemName == name, return node
-    // TODO: Check right subtree
-    return nullptr;
+ItemNode* ItemBST::searchByNameHelper(ItemNode* node, string name) const {
+    if (node == nullptr) return nullptr;
+
+    ItemNode* leftResult = searchByNameHelper(node->left, name);
+    if (leftResult != nullptr) return leftResult;
+
+    if (node->itemName == name) return node;
+
+    return searchByNameHelper(node->right, name);
 }
 
-ItemNode* ItemBST::searchByName(std::string itemName) const {
-    // TODO: return searchByNameHelper(root, itemName)
-    return nullptr;
+ItemNode* ItemBST::searchByName(string itemName) const {
+    return searchByNameHelper(root, itemName);
 }
 
 ItemNode* ItemBST::findMin(ItemNode* node) const {
-    // TODO: Traverse left until node->left == nullptr, return that node
-    return nullptr;
+    if (node == nullptr) return nullptr;
+
+    while (node->left != nullptr) {
+        node = node->left;
+    }
+
+    return node;
 }
 
-// ---------------------------------------------------------------
-// deleteHelper — recursive BST deletion (3 cases)
-// ---------------------------------------------------------------
 ItemNode* ItemBST::deleteHelper(ItemNode* node, int id) {
-    // TODO: If nullptr, print "Item not found" and return nullptr
-    // TODO: Recurse left/right to find node
-    // TODO: Case 1 — leaf: delete, return nullptr
-    // TODO: Case 2 — one child: replace with child, delete node
-    // TODO: Case 3 — two children:
-    //         successor = findMin(node->right)
-    //         copy successor data into node
-    //         node->right = deleteHelper(node->right, successor->itemId)
-    // TODO: Return node
-    return nullptr;
+    if (node == nullptr) return nullptr;
+
+    if (id < node->itemId) {
+        node->left = deleteHelper(node->left, id);
+    } 
+    else if (id > node->itemId) {
+        node->right = deleteHelper(node->right, id);
+    } 
+    else {
+        if (node->left == nullptr && node->right == nullptr) {
+            delete node;
+            return nullptr;
+        }
+
+        if (node->left == nullptr) {
+            ItemNode* temp = node->right;
+            delete node;
+            return temp;
+        }
+
+        if (node->right == nullptr) {
+            ItemNode* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        ItemNode* successor = findMin(node->right);
+
+        node->itemId = successor->itemId;
+        node->itemName = successor->itemName;
+        node->location = successor->location;
+
+        node->right = deleteHelper(node->right, successor->itemId);
+    }
+
+    return node;
 }
 
 void ItemBST::deleteItem(int itemId) {
-    // TODO: root = deleteHelper(root, itemId)
+    ItemNode* item = searchById(itemId);
+
+    if (item == nullptr) {
+        cout << "[ItemSearch] Item ID " << itemId
+             << " not found. Delete cancelled." << endl;
+        return;
+    }
+
+    cout << "[ItemSearch] Item deleted: "
+         << item->itemId << " | "
+         << item->itemName << " | "
+         << item->location << endl;
+
+    root = deleteHelper(root, itemId);
 }
 
-void ItemBST::updateLocation(int itemId, std::string newLocation) {
-    // TODO: node = searchById(itemId)
-    // TODO: If found, update node->location and print confirmation
-    // TODO: If not found, print error
+void ItemBST::updateLocation(int itemId, string newLocation) {
+    ItemNode* item = searchById(itemId);
+
+    if (item == nullptr) {
+        cout << "[ItemSearch] Item ID " << itemId
+             << " not found. Update cancelled." << endl;
+        return;
+    }
+
+    string oldLocation = item->location;
+    item->location = newLocation;
+
+    cout << "[ItemSearch] Location updated for "
+         << item->itemName << " from "
+         << oldLocation << " to "
+         << newLocation << endl;
 }
 
 void ItemBST::inOrderHelper(ItemNode* node) const {
-    // TODO: Recurse left, print node (ID | name | location), recurse right
+    if (node == nullptr) return;
+
+    inOrderHelper(node->left);
+
+    cout << "  ID: " << node->itemId
+         << " | Name: " << node->itemName
+         << " | Location: " << node->location << endl;
+
+    inOrderHelper(node->right);
 }
 
 void ItemBST::displayAll() const {
-    // TODO: Print header "=== Item Database (sorted by ID) ==="
-    // TODO: If empty, print "No items in database."
-    // TODO: Otherwise call inOrderHelper(root)
+    cout << "\n=== Item Database (Sorted by Item ID) ===" << endl;
+
+    if (root == nullptr) {
+        cout << "No items in database." << endl;
+        return;
+    }
+
+    inOrderHelper(root);
 }

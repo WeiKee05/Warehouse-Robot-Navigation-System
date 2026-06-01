@@ -12,6 +12,7 @@
  */
 
 #include <iostream>
+#include <string>
 #include "OrderManagement/OrderManagement.hpp"
 #include "RobotAssignment/RobotAssignment.hpp"
 #include "RobotNavigation/RobotNavigation.hpp"
@@ -25,32 +26,54 @@ int main() {
     cout << "  Warehouse Robot Navigation System     " << endl;
     cout << "========================================" << endl;
 
-    // ----------------------------------------------------------
-    // STEP 1: Initialize warehouse layout (Task 5)
-    // ----------------------------------------------------------
     WarehouseTree warehouse;
     warehouse.buildLayout();
     warehouse.displayLayout();
     warehouse.displayPreOrder();
 
-    // ----------------------------------------------------------
-    // STEP 2: Load item database (Task 4)
-    // ----------------------------------------------------------
-    // TODO: Create ItemBST, insert sample items with ID, name, location
-    // TODO: Display all items with displayAll()
+    ItemBST itemDatabase;
 
-    // ----------------------------------------------------------
-    // STEP 3: Receive and queue incoming orders (Task 1)
-    // ----------------------------------------------------------
+    itemDatabase.insert(504, "Control Chip D", "Shelf-1");
+    itemDatabase.insert(502, "Sensor Unit B", "Shelf-2");
+    itemDatabase.insert(506, "Battery Pack C", "Shelf-3");
+    itemDatabase.insert(501, "Motor Part A", "Shelf-4");
+    itemDatabase.insert(503, "Packing Tape E", "Shelf-5");
+    itemDatabase.insert(505, "Robot Wheel F", "Shelf-6");
+    itemDatabase.insert(507, "Barcode Scanner G", "Shelf-7");
+    itemDatabase.insert(508, "Safety Glove H", "Shelf-8");
+
+    itemDatabase.displayAll();
+
+    cout << "\n=== Search by ID ===" << endl;
+    ItemNode* idResult = itemDatabase.searchById(502);
+
+    if (idResult != nullptr) {
+        cout << "[ItemSearch] Found by ID: "
+             << idResult->itemId << " | "
+             << idResult->itemName << " | "
+             << idResult->location << endl;
+    }
+
+    cout << "\n=== Update Location ===" << endl;
+    itemDatabase.updateLocation(501, "Shelf-3");
+
+    cout << "\n=== Delete Item ===" << endl;
+    itemDatabase.deleteItem(503);
+    itemDatabase.displayAll();
+
+    cout << "\n=== Search Deleted Item ===" << endl;
+    ItemNode* deletedItem = itemDatabase.searchByName("Packing Tape E");
+
+    if (deletedItem == nullptr) {
+        cout << "[ItemSearch] Item not found: Packing Tape E" << endl;
+    }
+
     OrderQueue orderQueue;
     orderQueue.enqueue(1001, "Motor Part A");
     orderQueue.enqueue(1002, "Sensor Unit B");
     orderQueue.enqueue(1003, "Battery Pack C");
     orderQueue.displayPending();
 
-    // ----------------------------------------------------------
-    // STEP 4: Register robots and assign the first order (Task 2)
-    // ----------------------------------------------------------
     RobotCircularQueue robotQueue;
     robotQueue.addRobot(1);
     robotQueue.addRobot(2);
@@ -58,70 +81,107 @@ int main() {
     robotQueue.addRobot(4);
     robotQueue.addRobot(5);
 
-    // Simulate Robot 2 being under maintenance
     robotQueue.markMaintenance(2);
 
-    // Dequeue first order and assign a robot to it
     Order* firstOrder = orderQueue.dequeue();
+    Robot* assignedRobot = nullptr;
+
     if (firstOrder != nullptr) {
-        Robot* assignedRobot = robotQueue.assignNext();
+        assignedRobot = robotQueue.assignNext();
+
         if (assignedRobot != nullptr) {
             cout << "[System] Order " << firstOrder->orderId
-                 << " assigned to Robot " << assignedRobot->robotId << endl;
+                 << " assigned to Robot "
+                 << assignedRobot->robotId << endl;
         }
     }
 
     robotQueue.displayStatus();
     robotQueue.displayAssignments();
 
-    // ----------------------------------------------------------
-    // STEP 5: Search for item location (Task 4)
-    // ----------------------------------------------------------
-    // TODO: Use ItemBST::searchById() or searchByName() to find item
-    // TODO: Print item location (e.g., "Zone-A/Aisle-2/Shelf-3")
+    string itemLocation = "";
 
-    // ----------------------------------------------------------
-    // STEP 6: Generate route to item via warehouse layout (Task 5)
-    // ----------------------------------------------------------
+    if (firstOrder != nullptr) {
+        cout << "\n=== Item Search for Current Order ===" << endl;
+        cout << "[System] Searching location for order item: "
+             << firstOrder->itemName << endl;
+
+        ItemNode* foundItem = itemDatabase.searchByName(firstOrder->itemName);
+
+        if (foundItem != nullptr) {
+            itemLocation = foundItem->location;
+
+            cout << "[ItemSearch] Item found: "
+                 << foundItem->itemId << " | "
+                 << foundItem->itemName << " | Location: "
+                 << itemLocation << endl;
+        } 
+        else {
+            cout << "[ItemSearch] Item not found: "
+                 << firstOrder->itemName << endl;
+            cout << "[System] Cannot generate route because item location is unavailable." << endl;
+
+            delete firstOrder;
+            firstOrder = nullptr;
+            return 0;
+        }
+    }
+
     string path[20];
-    int pathLen = warehouse.getPathToLocation("Shelf-3", path, 20);
-    cout << "\n[Route] Path to Shelf-3: ";
+    int pathLen = warehouse.getPathToLocation(itemLocation, path, 20);
+
+    if (pathLen == 0) {
+        cout << "[System] Cannot generate route because warehouse location is invalid." << endl;
+
+        if (firstOrder != nullptr) {
+            delete firstOrder;
+            firstOrder = nullptr;
+        }
+
+        return 0;
+    }
+
+    cout << "\n[Route] Path to " << itemLocation << ": ";
+
     for (int i = 0; i < pathLen; i++) {
         cout << path[i];
-        if (i < pathLen - 1) cout << " -> ";
-    }
-    cout << endl;
-    warehouse.displayRoute("Shelf-6", "Shelf-3");
 
-    // ----------------------------------------------------------
-    // STEP 7: Navigate robot — push each step onto stack (Task 3)
-    // ----------------------------------------------------------
+        if (i < pathLen - 1) {
+            cout << " -> ";
+        }
+    }
+
+    cout << endl;
+
+    warehouse.displayRoute("Shelf-6", itemLocation);
+
     PathStack robotPath;
     string directionMap[] = { "forward", "left", "forward", "forward" };
 
     for (int i = 1; i < pathLen; i++) {
-        string direction = (i - 1 < 4) ? directionMap[i - 1] : "forward";
+        string direction = "forward";
+
+        if (i - 1 < 4) {
+            direction = directionMap[i - 1];
+        }
+
         robotPath.push(direction, path[i]);
     }
+
     robotPath.display();
     robotPath.displayForwardPath();
 
-    // ----------------------------------------------------------
-    // STEP 8: Robot completes task — return via reverse path (Task 3)
-    // ----------------------------------------------------------
     robotPath.returnPath();
-    // Mark the assigned robot available again after task completion
-    if (firstOrder != nullptr) {
-        robotQueue.markAvailable(1); // Robot 1 was assigned; free it up
+
+    if (assignedRobot != nullptr) {
+        robotQueue.markAvailable(assignedRobot->robotId);
     }
 
-    // ----------------------------------------------------------
-    // STEP 9: Mark order as completed (Task 1)
-    // ----------------------------------------------------------
-    Order* processedOrder = orderQueue.dequeue();
-    if (processedOrder != nullptr) {
-        orderQueue.markCompleted(processedOrder);
+    if (firstOrder != nullptr) {
+        orderQueue.markCompleted(firstOrder);
+        firstOrder = nullptr;
     }
+
     orderQueue.displayCompleted();
     orderQueue.displayPending();
 
