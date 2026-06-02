@@ -27,7 +27,7 @@ The system handles order management, robot assignment, navigation, item search, 
 |------|--------|----------------|--------|
 | 1 | Order Management | Queue | Lai Kah Fon (TP077207) |
 | 2 | Robot Assignment | Circular Queue | Ban Cong Yin Brosnan (TP076560) |
-| 3 | Robot Navigation & Path Tracking | Stack | EEE |
+| 3 | Robot Navigation & Path Tracking | Stack | Eee Kong Siong (TP076904) |
 | 4 | Item Search & Management *(Optional)* | BST | Ng Wan Teng (TP076289) |
 | 5 | Warehouse Layout & Navigation *(Optional)* | Tree | Lee Wei Kee (TP076249) |
 
