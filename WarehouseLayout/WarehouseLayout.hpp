@@ -3,8 +3,6 @@
  * Member: Lee Wei Kee
  * Student ID: TP076249
  * Data Structure: Tree (self-implemented, hierarchical multi-child nodes)
- *
- * Hierarchy: Warehouse --> Zones --> Aisles --> Shelves
  */
 
 #ifndef WAREHOUSE_LAYOUT_HPP
@@ -33,7 +31,7 @@ struct LocationNode {
     void addChild(LocationNode* child);
 };
 
-// Self-implemented Tree — DO NOT use STL containers
+// Self-implemented Tree
 class WarehouseTree {
 private:
     LocationNode* root;
