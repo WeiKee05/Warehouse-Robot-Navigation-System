@@ -4,6 +4,8 @@ A C++ simulation of an autonomous warehouse management system, built as a group 
 
 The system models a real warehouse workflow — from receiving a customer order, assigning a robot, navigating to the item's shelf, and returning to the starting point — all using self-implemented data structures with no STL containers allowed.
 
+> **My role:** Warehouse Layout & Navigation module — designed and built a self-implemented Tree structure that models the warehouse's physical layout and generates step-by-step robot routes between any two locations. 
+
 ---
 
 ## How the System Works
@@ -23,7 +25,7 @@ The project is split into five modules, each owned by a different team member:
 
 | Module | Data Structure | What It Does |
 |---|---|---|
-| **WarehouseLayout** *(my contribution)* | Tree | Models the warehouse layout and generates navigation routes |
+| **WarehouseLayout** *(my contribution)* | Tree | Models the warehouse layout and generates navigation routes between locations |
 | OrderManagement | Queue | Receives and processes customer orders in order of arrival |
 | RobotAssignment | Circular Queue | Assigns tasks to robots fairly in rotation |
 | RobotNavigation | Stack | Records each movement step and retraces the path in reverse |
