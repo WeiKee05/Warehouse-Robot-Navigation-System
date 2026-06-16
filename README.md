@@ -1,6 +1,6 @@
 # Warehouse Robot Navigation System
 
-A C++ simulation of an autonomous warehouse management system, built as a group assignment for the Data Structures (DSTR) module at Asia Pacific University (APU).
+A C++ simulation of an autonomous warehouse management system, built as a group assignment for the Data Structures module. 
 
 The system models a real warehouse workflow — from receiving a customer order, assigning a robot, navigating to the item's shelf, and returning to the starting point — all using self-implemented data structures with no STL containers allowed.
 
@@ -35,7 +35,7 @@ The project is split into five modules, each owned by a different team member:
 
 **Files:** `WarehouseLayout/WarehouseLayout.hpp` · `WarehouseLayout/WarehouseLayout.cpp`
 
-I built a **self-implemented tree** to represent the physical structure of the warehouse and generate step-by-step navigation routes between any two locations.
+Built a **self-implemented tree** to represent the physical structure of the warehouse and generate step-by-step navigation routes between any two locations.
 
 ### The Warehouse Structure
 
@@ -80,7 +80,7 @@ No STL containers were used — all memory is managed manually using `new` and `
 | `displayLayout()` | Prints the full warehouse tree in an indented format |
 | `displayRoute()` | Prints the route between two locations step by step |
 
-### What is the LCA and Why Does It Matter?
+### Why Does LCA Matter?
 
 To find the shortest route between two shelves, the system finds their **Lowest Common Ancestor** — the deepest node in the tree that is above both locations. This is the turning point in the route.
 
@@ -126,10 +126,5 @@ The program runs an automated demo first, then opens an interactive menu where y
 - **Data structures:** All self-implemented — no STL containers (`<vector>`, `<list>`, etc.)
 - **Tools:** VS Code, GitHub
 
----
-
-## Module Info
-
-**Data Structures (CT077-3-2)** — Year 2, Computer Science (Artificial Intelligence), Asia Pacific University (APU)
 
 > This fork highlights my personal contribution — Task 5: Warehouse Layout & Navigation. The full group project is available on request.
